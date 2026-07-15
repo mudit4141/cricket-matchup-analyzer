@@ -1,21 +1,20 @@
 # 🏏 5-Way Cricket Player Matchup Engine
 
-An interactive, high-performance web application built with Python, Pandas, and Gradio to analyze head-to-head records between any batter and bowler. This engine processes over 4.4 million deliveries across all major formats (IPL, T20I, ODI, and Test) and provides a unified "All" career view.
+A high-performance, interactive web application built with **Streamlit** that delivers deep head-to-head analytics between any batter and bowler across all major cricket formats.
 
-## 🚀 Features
-- **5 Matchup Modes:** Filter matchups individually by **IPL**, **T20I**, **ODI**, **Test**, or choose **All** to aggregate career statistics.
-- **Dynamic Dropdowns:** Dropdowns instantly update based on the selected format so you only see valid player combinations.
-- **Deep Performance Analytics:** Track key metrics including overall strike rate, dismissals, dot ball percentage, and wicket probability per delivery.
-- **Ball-by-Ball Logs:** Scroll through actual historical timeline samples of their head-to-head face-offs.
+🔗 **Live App Link:** [Click here to use the App](https://cricket-matchup-analyzer-bkqz4wyez4ydpvkuggwuf7.streamlit.app/)
+
+## 🚀 Key Features
+* **5-Way Matchup Modes:** Filter historical records instantly by **All (Career Summary)**, **IPL**, **T20I**, **ODI**, or **Test** matches.
+* **⚡ Smart Dynamic Filtering:** Selecting a batter automatically updates the bowler dropdown to show **only** the bowlers they have actually faced in the chosen format. No empty queries!
+* **Advanced Analytics:** Computes advanced metrics on the fly, including Head-to-Head Strike Rate, Wicket Probability per ball, and Dot Ball Percentage.
+* **Granular Timeline:** Displays a ball-by-ball historical timeline log of their actual face-offs.
+* **🧠 Memory-Optimized Architecture:** Custom pipeline utilizing **Parquet columnar storage**, strict column loading, and downcasted data types (`int8`, `float32`, and category types) to bypass the 1 GB RAM limit on free-tier cloud hosting.
 
 ## 🛠️ Tech Stack
-- **Frontend/UI:** Gradio
-- **Data Engineering:** Pandas
-- **Data Source:** Cricsheet
+* **Frontend/App Framework:** Streamlit
+* **Data Processing:** Pandas
+* **Storage Engine:** PyArrow (Apache Parquet)
 
-## 📦 How to Run Locally
-
-1. **Clone this repository:**
-   ```bash
-   git clone [https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git](https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git)
-   cd YOUR_REPOSITORY_NAME
+## 📦 Data Source
+The underlying data is dynamically compiled and cleaned from the open-source ball-by-ball dataset provided by **Cricsheet**.
