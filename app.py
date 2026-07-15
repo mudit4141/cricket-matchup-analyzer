@@ -5,13 +5,33 @@ st.set_page_config(page_title="5-Way Cricket Matchup Engine", layout="wide")
 
 @st.cache_data
 def load_data():
-    # Loading the compressed parquet file
-    return pd.read_parquet('cricket_data.parquet')
+    # Load ONLY the columns needed for matchup analytics to prevent Out of Memory (OOM)
+    required_cols = [
+        'format', 'start_date', 'innings', 'ball', 
+        'batter', 'bowler', 'runs_off_bat', 'is_wicket', 'wicket_type'
+    ]
+    
+    # Read parquet with specific columns
+    df = pd.read_parquet('cricket_data.parquet', columns=required_cols)
+    
+    # Optimize memory: Convert heavy string columns to Categorical types
+    categorical_cols = ['format', 'batter', 'bowler', 'wicket_type']
+    for col in categorical_cols:
+        if col in df.columns:
+            df[col] = df[col].astype('category')
+    
+    # Downcast numerical columns to save up to 80% RAM
+    df['runs_off_bat'] = df['runs_off_bat'].astype('int8')
+    df['is_wicket'] = df['is_wicket'].astype('int8')
+    df['innings'] = df['innings'].astype('int8')
+    df['ball'] = df['ball'].astype('float32')
+    
+    return df
 
 try:
     df = load_data()
 except Exception as e:
-    st.error("Data file 'cricket_data.parquet' not found in repository!")
+    st.error(f"Error loading parquet data: {e}")
     st.stop()
 
 @st.cache_data
