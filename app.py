@@ -34,40 +34,34 @@ except Exception as e:
     st.error(f"Error loading parquet data: {e}")
     st.stop()
 
-@st.cache_data
-def get_players(format_filter):
-    if format_filter == "All":
-        batters = sorted(df['batter'].dropna().unique().tolist())
-        bowlers = sorted(df['bowler'].dropna().unique().tolist())
-    else:
-        filtered_df = df[df['format'] == format_filter]
-        batters = sorted(filtered_df['batter'].dropna().unique().tolist())
-        bowlers = sorted(filtered_df['bowler'].dropna().unique().tolist())
-    return batters, bowlers
-
 st.title("🏏 5-Way Cricket Player Matchup Engine")
 st.write("Query data across individual formats (**IPL, T20I, ODI, Test**) or choose **All** to aggregate whole-career records.")
 
 st.sidebar.header("⚙️ Select Parameters")
 selected_format = st.sidebar.selectbox("1. Select Matchup Mode", ["All", "IPL", "T20I", "ODI", "Test"])
 
-available_batters, available_bowlers = get_players(selected_format)
+# 1. Filter dataset by the selected format first
+if selected_format == "All":
+    format_df = df
+else:
+    format_df = df[df['format'] == selected_format]
+
+# 2. Get available batters for this specific format
+available_batters = sorted(format_df['batter'].dropna().unique().astype(str).tolist())
 
 default_bat_idx = available_batters.index("Virat Kohli") if "Virat Kohli" in available_batters else 0
-default_bowl_idx = available_bowlers.index("Jasprit Bumrah") if "Jasprit Bumrah" in available_bowlers else 0
-
 selected_batter = st.sidebar.selectbox("2. Select Batter", available_batters, index=default_bat_idx)
-selected_bowler = st.sidebar.selectbox("3. Select Bowler", available_bowlers, index=default_bowl_idx)
+
+# 3. DYNAMIC FILTERING: Get ONLY the bowlers faced by this selected batter in this format
+matchup_subset = format_df[format_df['batter'] == selected_batter]
+available_bowlers = sorted(matchup_subset['bowler'].dropna().unique().astype(str).tolist())
+
+default_bowl_idx = available_bowlers.index("Jasprit Bumrah") if "Jasprit Bumrah" in available_bowlers else 0
+selected_bowler = st.sidebar.selectbox("3. Select Bowler (Only Faced Bowlers Shown)", available_bowlers, index=default_bowl_idx)
 
 if st.sidebar.button("⚡ Run Deep Matchup", type="primary"):
-    if selected_format == "All":
-        matchup_df = df[(df['batter'] == selected_batter) & (df['bowler'] == selected_bowler)]
-    else:
-        matchup_df = df[
-            (df['format'] == selected_format) & 
-            (df['batter'] == selected_batter) & 
-            (df['bowler'] == selected_bowler)
-        ]
+    # Filter the already filtered batter data for the selected bowler
+    matchup_df = matchup_subset[matchup_subset['bowler'] == selected_bowler]
     
     if matchup_df.empty:
         st.warning(f"⚠️ **{selected_batter}** has never faced **{selected_bowler}** in format: **{selected_format}**.")
